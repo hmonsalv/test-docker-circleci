@@ -1,13 +1,15 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
-# Use a package of configuration called an orb.
-orbs:
-  # Declare a dependency on the welcome-orb
-  welcome: circleci/welcome-orb@0.4.1
-# Orchestrate or schedule a set of jobs
-workflows:
-  # Name the workflow "welcome"
-  welcome:
-    # Run the welcome/run job in its own container
-    jobs:
-      - welcome/run
+
+jobs:
+  build:
+    machine: true
+    steps:
+      - add_ssh_keys:
+        fingerprints:
+          - "21:e4:5e:1c:b6:02:57:72:b7:b6:15:91:d8:05:1d:75"
+      - checkout
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker build -t hmonsalv/test-docker-circleci:$CIRCLE_SHA1 .
+      - run: docker push hmonsalv/test-docker-circleci:$CIRCLE_SHA1
+      - run: ssh -o StrictHostKeyChecking=no root@194.62.97.131 "/bin/bash /var/opt/docker/compose/test-docker-circleci/deploy.sh $CIRCLE_SHA1"
