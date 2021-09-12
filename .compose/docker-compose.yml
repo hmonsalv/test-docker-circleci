@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+
+  nginx_circleci:
+    image: hmonsalv/test-docker-circleci
+    restart: always
+    ports:
+      - "3000:80"
